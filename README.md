@@ -9,7 +9,17 @@ Faces pass & I'm homebound.
 
 **DUUU DUU DUU DUU DUU DUU DUUUUUU**
 
-##Alternatives to SQL/MySQL
+## Stappen SQL opdracht
+1. Fix Shelter
+2. Lees tutorial 
+3. SQL Installeren
+* Welke stappen moet ik hiervoor doen? Check de week 4 
+4. Visualiseer de data (bedenk wat voor tabellen er nodig zijn)
+5. Database aanmaken (tabellen aanmaken)
+6. Vertaal de functionaliteiten van nodejs naar query
+7. Functionaliteiten (her)schrijven
+
+## Alternatives to SQL/MySQL
 
 ### PostgreSQL (aka Postgres)
 Een _Object-Relational Database Management System_ (ORDBMS). Heeft een focus op uitbreidingmogelijkheden. De primaire functie is het veilig opslaan van data en de data terug geven bij requests van andere software applicaties. Postgres is bestemd voor kleine applicaties tot grotere _internet-facing applications_. Beschikbaar voor macOS, Windows & Linux. 

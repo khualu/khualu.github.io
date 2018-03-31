@@ -130,14 +130,95 @@ a;				// "42"
 b;				// 42 -- the number!
 ```
 
+### Truthy & Falsy
+The specific list of "falsy" values in JavaScript is as follows:
+* `""` (empty string
+* `0`, `-0`, `NaN` (invalid number)
+* `null`, `undefined`
+* `false`
 
+Any value that's not on this "falsy" list is "truthy." Here are some examples of those:
+* `"hello"`
+* `42`
+* `true`
+* `[ ]`, `[ 1, "2", 3 ]` (arrays)
+* `{ }`, `{ a: 42 }` (objects)
+* `function foo() { .. }` (functions)
 
+### Equality
+The difference between `==` and `===` is usually characterized that `==` checks for value equality and `===` checks for both value and type equality. However, this is inaccurate. The proper way to characterize them is that `==` checks for value equality with coercion allowed, and `===` checks for value equality without allowing coercion; `===` is often called "strict equality" for this reason.
 
+#### How is the coercion allowed?
+In the a == b comparison, JS notices that the types do not match, so it goes through an ordered series of steps to coerce one or both values to a different type until the types match, where then a simple value equality can be checked.
 
+If you think about it, there's two possible ways a == b could give true via coercion. Either the comparison could end up as 42 == 42 or it could be "42" == "42". So which is it?
 
+The answer: "42" becomes 42, to make the comparison 42 == 42. In such a simple example, it doesn't really seem to matter which way that process goes, as the end result is the same. There are more complex cases where it matters not just what the end result of the comparison is, but how you get there.
 
+You should take special note of the `==` and `===` comparison rules if you're comparing two non-primitive values, like `objects` (including function and array). Because those values are actually held by reference, both `==` and `===` comparisons will simply check whether the references match, not anything about the underlying values.
 
+For example, `arrays` are by default coerced to `strings` by simply joining all the values with commas (,) in between. You might think that two arrays with the same contents would be == equal, but they're not:
 
+```javascript
+var a = [1,2,3];
+var b = [1,2,3];
+var c = "1,2,3";
 
+a == c;		// true
+b == c;		// true
+a == b;		// false
+```
 
+(This actually blew my mind. It doesn't make sense but it does at the same time)
 
+### Inequality
+The `<`, `>`, `<=`, and `>=` operators are used for inequality, referred to in the specification as "relational comparison." Typically they will be used with ordinally comparable values like numbers. It's easy to understand that `3 < 4`. But JavaScript `string` values can also be compared for inequality, using typical alphabetic rules (`"bar" < "foo"`). There are no strict inequiality operators. 
+
+```javascript
+var a = 41;
+var b = "42";
+var c = "43";
+
+a < b;		// true
+b < c;		// true
+```
+The biggest gotcha you may run into here with comparisons between potentially different value types -- remember, there are no "strict inequality" forms to use -- is when one of the values cannot be made into a valid number, such as:
+```javascript
+var a = 42;
+var b = "foo";
+
+a < b;		// false
+a > b;		// false
+a == b;		// false
+```
+
+## Variables
+In JavaScript, variable names (including function names) must be valid identifiers. The strict and complete rules for valid characters in identifiers are a little complex when you consider nontraditional characters such as Unicode. If you only consider typical ASCII alphanumeric characters, though, the rules are simple.
+
+An identifier must start with `a-z`, `A-Z`, `$`, or `_`. It can then contain any of those characters plus the numerals 0-9.
+
+Generally, the same rules apply to a property name as to a variable identifier. However, certain words cannot be used as variables, but are OK as property names. These words are called "reserved words," and include the JS keywords (`for`, `in`, `if`, etc.) as well as `null`, `true`, and `false`.
+
+## Function Scopes
+You use the `var` keyword to declare a variable that will belong to the current function scope, or the global scope if at the top level outside of any function.
+
+### Hoisting
+Wherever a `var` appears inside a scope, that declaration is taken to belong to the entire scope and accessible everywhere throughout. Metaphorically, this behavior is called hoisting, when a var declaration is conceptually "moved" to the top of its enclosing scope. Technically, this process is more accurately explained by how code is compiled, but we can skip over those details for now. Consider:
+
+```javascript
+var a = 2;
+
+foo();					// works because `foo()`
+						// declaration is "hoisted"
+
+function foo() {
+	a = 3;
+
+	console.log( a );	// 3
+
+	var a;				// declaration is "hoisted"
+						// to the top of `foo()`
+}
+
+console.log( a );	// 2
+```

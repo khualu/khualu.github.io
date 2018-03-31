@@ -221,11 +221,114 @@ While a `while` (or `do..while`) can accomplish the task manually, there's anoth
 for (var i = 0; i <= 9; i = i + 1) {
 	console.log( i );
 }
+// 0 1 2 3 4 5 6 7 8 9
 ```
 
 #### Functions
 
-// 0 1 2 3 4 5 6 7 8 9
+Functions can optionally take arguments (aka parameters) -- values you pass in. And they can also optionally return a value back.
+```javascript
+function printAmount(amt) {
+	console.log( amt.toFixed( 2 ) );
+}
 
+function formatAmount() {
+	return "$" + amount.toFixed( 2 );
+}
 
+var amount = 99.99;
+
+printAmount( amount * 2 );		// "199.98"
+
+amount = formatAmount();
+console.log( amount );			// "$99.99"
+```
+The function printAmount(..) takes a parameter that we call amt. The function formatAmount() returns a value. Of course, you can also combine those two techniques in the same function.
+
+Functions are often used for code that you plan to call multiple times, but they can also be useful just to organize related bits of code into named collections, even if you only plan to call them once.
+
+Consider:
+```javascript
+const TAX_RATE = 0.08;
+
+function calculateFinalPurchaseAmount(amt) {
+	// calculate the new amount with the tax
+	amt = amt + (amt * TAX_RATE);
+
+	// return the new amount
+	return amt;
+}
+
+var amount = 99.99;
+
+amount = calculateFinalPurchaseAmount( amount );
+
+console.log( amount.toFixed( 2 ) );		// "107.99"
+```
+
+#### Scope
+In JavaScript, each function gets its own scope. Scope is basically a collection of variables as well as the rules for how those variables are accessed by name. Only code inside that function can access that function's scoped variables. A variable name has to be unique within the same scope -- there can't be two different `a` variables sitting right next to each other. But the same variable name `a` could appear in different scopes.
+
+```javascript
+function one() {
+	// this `a` only belongs to the `one()` function
+	var a = 1;
+	console.log( a );
+}
+
+function two() {
+	// this `a` only belongs to the `two()` function
+	var a = 2;
+	console.log( a );
+}
+
+one();		// 1
+two();		// 2
+```
+
+Also, a scope can be nested inside another scope, just like if a clown at a birthday party blows up one balloon inside another balloon. If one scope is nested inside another, code inside the innermost scope can access variables from either scope.
+
+Consider:
+```javascript
+function outer() {
+	var a = 1;
+
+	function inner() {
+		var b = 2;
+
+		// we can access both `a` and `b` here
+		console.log( a + b );	// 3
+	}
+
+	inner();
+
+	// we can only access `a` here
+	console.log( a );			// 1
+}
+
+outer();
+```
+_*Lexical scope*_ rules say that code in one scope can access variables of either that scope or any scope outside of it.
+
+So, code inside the inner() function has access to both variables a and b, but code in outer() has access only to a -- it cannot access b because that variable is only inside inner()
+
+#### REVIEW
+Learning programming doesn't have to be a complex and overwhelming process. There are just a few basic concepts you need to wrap your head around.
+
+These act like building blocks. To build a tall tower, you start first by putting block on top of block on top of block. The same goes with programming. Here are some of the essential programming building blocks:
+
+* You need operators to perform actions on values.
+* You need values and types to perform different kinds of actions like math on numbers or output with strings.
+* You need variables to store data (aka state) during your program's execution.
+* You need conditionals like if statements to make decisions.
+* You need loops to repeat tasks until a condition stops being true.
+* You need functions to organize your code into logical and reusable chunks.
+
+Code comments are one effective way to write more readable code, which makes your program easier to understand, maintain, and fix later if there are problems.
+
+Finally, don't neglect the power of practice. The best way to learn how to write code is to write code.
+
+I'm excited you're well on your way to learning how to code, now! Keep it up. Don't forget to check out other beginner programming resources (books, blogs, online training, etc.). This chapter and this book are a great start, but they're just a brief introduction.
+
+The next chapter will review many of the concepts from this chapter, but from a more JavaScript-specific perspective, which will highlight most of the major topics that are addressed in deeper detail throughout the rest of the series.
 

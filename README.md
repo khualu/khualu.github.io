@@ -39,7 +39,8 @@ For other languages, the translation is done ahead of time, called compiling the
 #### Input
 Most forms of input are from form elements in HTML. There are other (easier) ways to do this. Such as the `prompt(...);` function. 
 
-```age = prompt( "Please tell me your age:" );
-
-console.log( age );```
+```javascript
+age = prompt( "Please tell me your age:" );
+console.log( age );
+```
 

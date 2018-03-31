@@ -128,4 +128,104 @@ amount = "$" + String( amount );
 console.log( amount );		// "$199.98"
 ```
 
+The newest version of JavaScript at the time of this writing (commonly called "ES6") includes a new way to declareconstants, by usingconstinstead ofvar:
+```
+//
+ as of ES6:
+const TAX_RATE = 0.08;
+
+
+var amount = 99.99;
+//
+```
+
+Constants are useful just like variables with unchanged values, except that constants also prevent accidentally changing value somewhere else after the initial setting. If you tried to assign any different value toTAX_RATEafter that first declaration, your program would reject the change (and in strict mode, fail with an error -- see "Strict Mode" in Chapter 2).
+
+####Blocks
+In JavaScript, a block is defined by wrapping one or more statements inside a curly-brace pair
+
+`{ .. }`. Consider:
+```javascript
+var amount = 99.99;
+
+
+// a general block
+{
+    amount = amount * 2;
+    console.log ( amount ); //199.98
+}
+```
+
+#### Conditionals 
+There are quite a few ways we can express _conditionals_ (aka decisions) in our programs.
+The most common one is the if statement. Essentially, you're saying, "If this condition is true, do the following...". For example:
+
+```javascript
+var bank_balance = 302.13;
+var amount = 99.99;
+
+if (amount < bank_balance) {
+	console.log( "I want to buy this phone!" );
+}
+```
+
+As we discussed in "Values & Types" earlier, values that aren't already of an expected type are often coerced to that type. The if statement expects a `boolean`, but if you pass it something that's not already boolean, coercion will occur.
+
+JavaScript defines a list of specific values that are considered "falsy" because when coerced to a boolean, they become `false` -- these include values like `0` and `""`. Any other value not on the "falsy" list is automatically "truthy" -- when coerced to a boolean they become true. Truthy values include things like 99.99 and "free". See "Truthy & Falsy" in Chapter 2 for more information.
+
+
+#### Loops
+For example, the `while` loop and the `do..while` loop forms illustrate the concept of repeating a block of statements until a condition no longer evaluates to true:
+
+```javascript
+while (numOfCustomers > 0) {
+	console.log( "How may I help you?" );
+
+	// help the customer...
+
+	numOfCustomers = numOfCustomers - 1;
+}
+
+// versus:
+
+do {
+	console.log( "How may I help you?" );
+
+	// help the customer...
+
+	numOfCustomers = numOfCustomers - 1;
+} while (numOfCustomers > 0);
+```
+The only practical difference between these loops is whether the conditional is tested _*before*_ the first iteration (`while`) or _*after*_ the first iteration (`do..while`).
+
+We can use JavaScript's `break` statement to stop a loop. Also, we can observe that it's awfully easy to create a loop that would otherwise run forever without a breaking mechanism.
+
+```javascript
+var i = 0;
+
+// a `while..true` loop would run forever, right?
+while (true) {
+	// stop the loop?
+	if ((i <= 9) === false) {
+		break;
+	}
+
+	console.log( i );
+	i = i + 1;
+}
+// 0 1 2 3 4 5 6 7 8 9
+```
+
+While a `while` (or `do..while`) can accomplish the task manually, there's another syntactic form called a `for` loop for just that purpose:
+```javascript
+for (var i = 0; i <= 9; i = i + 1) {
+	console.log( i );
+}
+```
+
+#### Functions
+
+// 0 1 2 3 4 5 6 7 8 9
+
+
 

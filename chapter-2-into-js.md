@@ -424,3 +424,111 @@ More on how this code works:
 3. When we call plusOne(3), it adds 3 (its inner y) to the 1 (remembered by x), and we get 4 as the result.
 4. When we call plusTen(13), it adds 13 (its inner y) to the 10 (remembered by x), and we get 23 as the result.
 
+### Modules 
+The most common usage of closure in JavaScript is the module pattern. Modules let you define private implementation details (variables, functions) that are hidden from the outside world, as well as a public API that is accessible from the outside.
+```javascript
+function User(){
+	var username, password;
+
+	function doLogin(user,pw) {
+		username = user;
+		password = pw;
+
+		// do the rest of the login work
+	}
+
+	var publicAPI = {
+		login: doLogin
+	};
+
+	return publicAPI;
+}
+
+// create a `User` module instance
+var fred = User();
+
+fred.login( "fred", "12Battery34!" );
+```
+
+How it works: 
+* The `User();` function servers as an outer scope with variables `username` & `password`, aswell as `doLogin();`. These are details of `User`. Running `User();` creates an instance of the User module -- a whole new scope is created, and thus a whole new copy of each of these inner variables/functions. We assign this instance to fred. If we run User() again, we'd get a new instance entirely separate from fred. 
+* `doLogin();` has closure over `username` and `password`, meaning it will retain access to them even after the `User();` function finishes running. 
+* `publicAPI` is an object with one method in it, which is `login`. It refers to the inner `doLogin();`. When we return `publicAPI` from `User();`, it becomes the instance we call `fred`. 
+* At this point, `User();` has stopped running. Since there's a closure in the `login();` function, it's still keeping `username` and `password` alive. This is why we can call `fred.login(..);` and still acces `username` & `password`. 
+
+## `this` Identifier
+If a function has a `this` reference inside it, that `this` reference usually points to an object. But which object it points to depends on how the function was called. It's important to realize that this does not refer to the function itself, as is the most common misconception. Here's a quick illustration:
+```javascript
+function foo() {
+	console.log( this.bar );
+}
+
+var bar = "global";
+
+var obj1 = {
+	bar: "obj1",
+	foo: foo
+};
+
+var obj2 = {
+	bar: "obj2"
+};
+
+// --------
+
+foo();				// "global"
+obj1.foo();			// "obj1"
+foo.call( obj2 );		// "obj2"
+new foo();			// undefined
+```
+There are four rules for how this gets set, and they're shown in those last four lines of that snippet.
+
+1. `foo()` ends up setting this to the global object in non-strict mode -- in strict mode, this would be undefined and you'd get an error in accessing the bar property -- so "global" is the value found for this.bar.
+2. `obj1.foo()` sets this to the obj1 object.
+3. `foo.call(obj2)` sets this to the obj2 object.
+4. `new foo()` sets this to a brand new empty object.
+
+## Prototypes
+When you reference a property on an object, if that property doesn't exist, JavaScript will automatically use that object's internal prototype reference to find another object to look for the property on. You could think of this almost as a fallback if the property is missing. The internal prototype reference linkage from one object to its fallback happens at the time the object is created. The simplest way to illustrate it is with a built-in utility called `Object.create(..)`.
+
+```javascript
+var foo = {
+	a: 42
+};
+
+// create `bar` and link it to `foo`
+var bar = Object.create( foo );
+
+bar.b = "hello world";
+
+bar.b;		// "hello world"
+bar.a;		// 42 <-- delegated to `foo`
+```
+
+The a property doesn't actually exist on the bar object, but because bar is prototype-linked to foo, JavaScript automatically falls back to looking for a on the foo object, where it's found. This linkage may seem like a strange feature of the language. The most common way this feature is used -- and I would argue, abused -- is to try to emulate/fake a "class" mechanism with "inheritance." But a more natural way of applying prototypes is a pattern called "behavior delegation," where you intentionally design your linked objects to be able to delegate from one to the other for parts of the needed behavior.
+
+## Old & New
+There are two main techniques you can use to "bring" the newer JavaScript stuff to the older browsers: polyfilling and transpiling.
+
+### Polyfilling
+This means making a piece of code that does the exact same thing as a _newer_  functionality of (e.g.) ES6. For example, ES6 defines a utility called Number.isNaN(..) to provide an accurate non-buggy check for NaN values, deprecating the original isNaN(..) utility. But it's easy to polyfill that utility so that you can start using it in your code regardless of whether the end user is in an ES6 browser or not.
+```javascript
+if (!Number.isNaN) {
+	Number.isNaN = function isNaN(x) {
+		return x !== x;
+	};
+}
+```
+
+### Transpiling
+There's no way to polyfill new syntax. So the better option is to use a tool that convers your newer vode into older code equivalents. This is called transpiling. Essentially, your source code is authored in the new syntax form, but what you deploy to the browser is the transpiled code in old syntax form. You typically insert the transpiler into your build process, similar to your code linter or your minifier. So why would you use transpiled code instead of using older code directly? Here are several reasons why you should consider transpiling:
+* *The new syntax added to the language is designed to make your code more readable and maintainable*. The older equivalents are often much more convoluted. You should prefer writing newer and cleaner syntax, not only for yourself but for all other members of the development team.
+* *If you transpile only for older browsers, but serve the new syntax to the newest browsers, you get to take advantage of browser performance optimizations with the new syntax*. This also lets browser makers have more real-world code to test their implementations and optimizations on.
+* *Using the new syntax earlier allows it to be tested more robustly in the real world, which provides earlier feedback to the JavaScript committee (TC39)*. If issues are found early enough, they can be changed/fixed before those language design mistakes become permanent.
+
+## Non-Javascript
+ A good chunk of the stuff that you write in your code is, strictly speaking, not directly controlled by JavaScript. The most common non-JavaScript JavaScript you'll encounter is the DOM API. For example:
+ ```javascript
+ var el = document.getElementById("foo");
+ ```
+ This layer is something more from C/C++. Same goes for `alert();` and `console.log(..);`. 

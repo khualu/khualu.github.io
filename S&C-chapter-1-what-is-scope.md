@@ -26,3 +26,89 @@ So, how does this work. _Engine_  sees two distinct statements, one which _compi
   1. Encountering `var a`, _compiler_ will ask _scope_ to see if a variable `a` already exists for that particular scope. If that's the case, _compiler_ igonres this declaration and moves on. Otherwhise, _compiler_ asks scope to declare the new variable called `a` for that scope collection.
   2. _Compiler_ then produces code for _engine_ to later execute, to handle the `a = 2` assignment. The code _engine_ runs will first ask _scope_ if there is a variable `a` accessible in the current scope. If this is the case, _engine_ uses that variable. If not, _engine_ looks further elsewhere for a variable called `a`. 
 * If _engine_ finds a variable, it assigns the value `2` to it. If not _engine_ will give you and error. 
+
+*To summarize:* two distinct actions are taken for a variable assignment: 
+1. Compiler declares a variable (if not previously declared in the current scope).
+2. When executing, Engine looks up the variable in Scope and assigns to it, if found.
+
+### Compiler Speak
+When Engine executes the code that Compiler produced for step (2), it has to look-up the variable a to see if it has been declared, and this look-up is consulting Scope. But the type of look-up Engine performs affects the outcome of the look-up. There are two kinds of look-ups. _Left-hand Side_ & _Right-hand Side_. 
+
+* RHS is for when you want to retrieve a value and pass it down to another operator/variable.
+* LHS is for when you don't care what the current value is and you just want a variable to target an assignment. 
+
+Exmaples:
+This is a RHS reference. Because nothing is being assigned to `a`. We're just looking to retrieve the value of `a` and pass it down to `console.log();`. 
+```javascript
+console.log(a);
+```
+On the other hand (_huehuehue_), this here is a LHS. This is because we don't really care what the current value is, we simply want to find the variable as a target of the `= 2` assignment operation. 
+```javascript
+a = 2;
+```
+However, the subtle but important difference is that Compiler handles both the declaration and the value definition during code-generation, such that when Engine is executing code, there's no processing necessary to "assign" a function value to foo. Thus, it's not really appropriate to think of a function declaration as an LHS look-up assignment in the way we're discussing them here.
+
+### Engine/Scope Conversation
+```javascript
+function foo(a) {
+	console.log( a ); // 2
+}
+
+foo( 2 );
+```
+Let's imagine the above exchange (which processes this code snippet) as a conversation. The conversation would go a little something like this:
+
+> Engine: Hey Scope, I have an RHS reference for foo. Ever heard of it?
+
+> Scope: Why yes, I have. Compiler declared it just a second ago. He's a function. Here you go.
+
+> Engine: Great, thanks! OK, I'm executing foo.
+
+> Engine: Hey, Scope, I've got an LHS reference for a, ever heard of it?
+
+> Scope: Why yes, I have. Compiler declared it as a formal parameter to foo just recently. Here you go.
+
+> Engine: Helpful as always, Scope. Thanks again. Now, time to assign 2 to a.
+
+> Engine: Hey, Scope, sorry to bother you again. I need an RHS look-up for console. Ever heard of it?
+
+> Scope: No problem, Engine, this is what I do all day. Yes, I've got console. He's built-in. Here ya go.
+
+> Engine: Perfect. Looking up log(..). OK, great, it's a function.
+
+> Engine: Yo, Scope. Can you help me out with an RHS reference to a. I think I remember it, but just want to double-check.
+
+> Scope: You're right, Engine. Same guy, hasn't changed. Here ya go.
+
+> Engine: Cool. Passing the value of a, which is 2, into log(..).
+
+
+## Nested Scope
+Just as a block or function is nested inside another block or function, scopes are nested inside other scopes. So, if a variable cannot be found in the immediate scope, Engine consults the next outer containing scope, continuing until found or until the outermost (aka, global) scope has been reached.
+```javascript
+function foo(a) {
+	console.log( a + b );
+}
+
+var b = 2;
+
+foo( 2 ); // 4
+```
+The RHS reference for `b` cannot be resolved inside the function foo, but it can be resolved in the Scope surrounding it (in this case, the global).
+
+## Errors
+Why does it matter if it's a LHS or RHS? Well, they both behave differently in the circumstance where the variable has not yet been declared.
+```javascript
+function foo(a) {
+	console.log( a + b );
+	b = a;
+}
+
+foo( 2 );
+```
+Both LHS and RHS reference look-ups start at the currently executing Scope, and if need be (that is, they don't find what they're looking for there), they work their way up the nested Scope, one scope (floor) at a time, looking for the identifier, until they get to the global (top floor) and stop, and either find it, or don't.
+
+If RHS fails the look-up, it results in a `ReferenceError`. 
+If LHS fails the look-up, it makes va riable in the global scope. 
+
+Unfulfilled RHS references result in `ReferenceError`s being thrown. Unfulfilled LHS references result in an automatic, implicitly-created global of that name (if not in "Strict Mode" [^note-strictmode]), or a ReferenceError (if in "Strict Mode" [^note-strictmode]).

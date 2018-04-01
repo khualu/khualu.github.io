@@ -222,3 +222,185 @@ function foo() {
 
 console.log( a );	// 2
 ```
+
+### Nested Scopes
+If you try to access a variable's value in a scope where it's not available, you'll get a ReferenceError thrown. If you try to set a variable that hasn't been declared, you'll either end up creating a variable in the top-level global scope (bad!) or getting an error, depending on "strict mode" (see "Strict Mode"). Let's take a look:
+
+```javascript
+function foo() {
+	a = 1;	// `a` not formally declared
+}
+
+foo();
+a;			// 1 -- oops, auto global variable :(
+```
+This is a very bad practice. Don't do it! Always formally declare your variables. It should be: `var a = 1;`. 
+
+In addition to creating declarations for variables at the function level, ES6 lets you declare variables to belong to individual blocks (pairs of { .. }), using the let keyword. Besides some nuanced details, the scoping rules will behave roughly the same as we just saw with functions:
+
+```javascript
+function foo() {
+	var a = 1;
+
+	if (a >= 1) {
+		let b = 2;
+
+		while (b < 5) {
+			let c = b * 2;
+			b++;
+
+			console.log( a + c );
+		}
+	}
+}
+
+foo();
+// 5 7 9
+```
+Because of `let`, `b` will only belong to the `if` statement and `c` belongs only to the `while` loop. 
+
+## Conditionals
+Another _conditional mechanism_ of JS is the `switch`. Instead of writing all different `if..else..if` statements you can do it with `switch` this way. 
+```javascript
+switch (a) {
+	case 2:
+		// do something
+		break;
+	case 10:
+		// do another thing
+		break;
+	case 42:
+		// do yet another thing
+		break;
+	default:
+		// fallback to here
+}
+```
+
+The break is important if you want only the statement(s) in one case to run. If you omit break from a case, and that case matches or runs, execution will continue with the next case's statements regardless of that case matching. This so called "fall through" is sometimes useful/desired:
+```javascript
+switch (a) {
+	case 2:
+	case 10:
+		// some cool stuff
+		break;
+	case 42:
+		// other stuff
+		break;
+	default:
+		// fallback
+}
+```
+The _ternary operator_ is another conditional operator. It goes like this: 
+```javascript
+var a = 42;
+
+var b = (a > 41) ? "hello" : "world";
+
+// similar to:
+
+// if (a > 41) {
+//    b = "hello";
+// }
+// else {
+//    b = "world";
+// }
+```
+
+## Strict Mode
+ES5 added a "strict mode" to the language, which tightens the rules for certain behaviors. Generally, these restrictions are seen as keeping the code to a safer and more appropriate set of guidelines. Also, adhering to strict mode makes your code generally more optimizable by the engine. Strict mode is a big win for code, and you should use it for all your programs. You can opt in to strict mode for an individual function, or an entire file, depending on where you put the strict mode pragma:
+```javascript
+function foo() {
+	"use strict";
+
+	// this code is strict mode
+
+	function bar() {
+		// this code is strict mode
+	}
+}
+
+// this code is not strict mode
+```
+OR
+```javascript
+"use strict";
+
+function foo() {
+	// this code is strict mode
+
+	function bar() {
+		// this code is strict mode
+	}
+}
+
+// this code is strict mode
+```
+_One key difference_ (improvement!) with strict mode is _*disallowing the implicit auto-global variable declaration*_ from omitting the var:
+```javascript
+function foo() {
+	"use strict";	// turn on strict mode
+	a = 1;			// `var` missing, ReferenceError
+}
+
+foo();
+```
+## Functions as Values
+So far, functions have been the primary mechanism of _scope_ in JS. (e.g. `function foo(){};`). `foo` is basically just a variable in the outer enclosing scope that's given a reference to the `function` being declared. A function itself can be a _value_ that's assigned to variables, or passed to or returned from other functions. Consider:
+```javascript
+var foo = function () {
+	// stuff
+}; 
+
+var x = function bar () {
+	// other stuff
+};
+```
+
+The first function expression assigned to the foo variable is called anonymous because it has no name. The second function expression is named (bar), even as a reference to it is also assigned to the x variable. Named function expressions are generally more preferable, though anonymous function expressions are still extremely common.
+
+### Immediately Invoked Function Expressions (IIFEs)
+There's another way to execute a function expression, which is typically referred to as an immediately invoked function expression (IIFE):
+```javascript
+(function IIFE(){
+	console.log( "Hello!" );
+})();
+// "Hello!"
+```
+
+The outer ( .. ) that surrounds the (function IIFE(){ .. }) function expression is just a nuance of JS grammar needed to prevent it from being treated as a normal function declaration. The final () on the end of the expression -- the })(); line -- is what actually executes the function expression referenced immediately before it. IIFEs can be used to create variable scope thus making variables that won't affect the surrounding code outside the IIFE:
+```javascript
+var a = 42;
+
+(function IIFE(){
+	var a = 10;
+	console.log( a );	// 10
+})();
+
+console.log( a );		// 42
+
+//they can also have return values
+
+var x = (function IIFE(){
+	return 42;
+})();
+x;	// 42
+```
+
+### Closure
+You can think of closure as a way to _*"remember"*_ and continue to access a function's scope (its variables) even once the function has finished running. Consider:
+```javascript
+function makeAdder(x) {
+	// parameter `x` is an inner variable
+
+	// inner function `add()` uses `x`, so
+	// it has a "closure" over it
+	function add(y) {
+		return y + x;
+	};
+
+	return add;
+}
+```
+
+

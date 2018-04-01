@@ -22,7 +22,7 @@ Let's meet the cast of characters that interact to process the program `var a = 
 
 ### Back & Forth
 So, how does this work. _Engine_  sees two distinct statements, one which _compiler_ will handle during the compilation and one which _engine_ will handle during the execution. Let's break down how this goes:
-1. _Compiler_ will start lexing the code to break it down into tokens, then it will parse it into a tree. 
+* _Compiler_ will start lexing the code to break it down into tokens, then it will parse it into a tree. 
   1. Encountering `var a`, _compiler_ will ask _scope_ to see if a variable `a` already exists for that particular scope. If that's the case, _compiler_ igonres this declaration and moves on. Otherwhise, _compiler_ asks scope to declare the new variable called `a` for that scope collection.
   2. _Compiler_ then produces code for _engine_ to later execute, to handle the `a = 2` assignment. The code _engine_ runs will first ask _scope_ if there is a variable `a` accessible in the current scope. If this is the case, _engine_ uses that variable. If not, _engine_ looks further elsewhere for a variable called `a`. 
-2. If _engine_ finds a variable, it assigns the value `2` to it. If not _engine_ will give you and error. 
+* If _engine_ finds a variable, it assigns the value `2` to it. If not _engine_ will give you and error. 

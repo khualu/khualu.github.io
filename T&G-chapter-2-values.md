@@ -93,5 +93,57 @@ The most (in)famous side effect of using binary floating-point numbers (which, r
 ```
 Simply put, the representations for 0.1 and 0.2 in binary floating-point are not exact, so when they are added, the result is not exactly 0.3. It's really close: 0.30000000000000004, but if your comparison fails, "close" is irrelevant.
 
+As of ES6, Number.EPSILON is predefined with this tolerance value, so you'd want to use it, but you can safely polyfill the definition for pre-ES6:
+```javascript
+if (!Number.EPSILON) {
+	Number.EPSILON = Math.pow(2,-52);
+}
+```
+We can use this Number.EPSILON to compare two numbers for "equality" (within the rounding error tolerance):
+```javascript
+function numbersCloseEnoughToEqual(n1,n2) {
+	return Math.abs( n1 - n2 ) < Number.EPSILON;
+}
+
+var a = 0.1 + 0.2;
+var b = 0.3;
+
+numbersCloseEnoughToEqual( a, b );					// true
+numbersCloseEnoughToEqual( 0.0000001, 0.0000002 );	// false
+```
 ### Safe Integer Ranges
 The maximum integer that can "safely" be represented (that is, there's a guarantee that the requested value is actually representable unambiguously) is 2^53 - 1, which is 9007199254740991. If you insert your commas, you'll see that this is just over 9 quadrillion. So that's pretty darn big for numbers to range up to.
+
+### Testing for Integers
+```javascript
+Number.isInteger( 42 );		// true
+Number.isInteger( 42.000 );	// true
+Number.isInteger( 42.3 );	// false
+
+//polyfill pre-ES6
+if (!Number.isInteger) {
+	Number.isInteger = function(num) {
+		return typeof num == "number" && num % 1 == 0;
+	};
+}
+// test for safe integer
+Number.isSafeInteger( Number.MAX_SAFE_INTEGER );	// true
+Number.isSafeInteger( Math.pow( 2, 53 ) );			// false
+Number.isSafeInteger( Math.pow( 2, 53 ) - 1 );		// true
+
+// polyfill pre-ES6
+if (!Number.isSafeInteger) {
+	Number.isSafeInteger = function(num) {
+		return Number.isInteger( num ) &&
+			Math.abs( num ) <= Number.MAX_SAFE_INTEGER;
+	};
+};
+```
+
+## Special Values
+### The Non-value Values
+* `null` is an empty value
+* `undefined` is a missing value
+OR
+* `null` had a value and doesn't anymore
+* `undefined` hasn't had a value yet

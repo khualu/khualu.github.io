@@ -89,3 +89,51 @@ Starting with ES3, the try/catch structure has block-scope in the catch clause.
 In ES6, the let keyword (a cousin to the var keyword) is introduced to allow declarations of variables in any arbitrary block of code. if (..) { let a = 2; } will declare a variable a that essentially hijacks the scope of the if's { .. } block and attaches itself there.
 
 Though some seem to believe so, block scope should not be taken as an outright replacement of var function scope. Both functionalities co-exist, and developers can and should use both function-scope and block-scope techniques where respectively appropriate to produce better, more readable/maintainable code.
+
+## Scopes from Functions
+Function scope encourages the idea that all variables belong to the function, and can be used and reused throughout the entirety of the function (and indeed, accessible even to nested scopes). This design approach can be quite useful, and certainly can make full use of the "dynamic" nature of JavaScript variables to take on values of different types as needed.
+
+## Hiding in Plain Scope
+Hide code in scope. 
+There's a variety of reasons motivating this scope-based hiding. They tend to arise from the software design principle "Principle of Least Privilege" [^note-leastprivilege], also sometimes called "Least Authority" or "Least Exposure". This principle states that in the design of software, such as the API for a module/object, you should expose only what is minimally necessary, and "hide" everything else.
+
+## Blocks as Scopes
+That's what block-scoping is all about. Declaring variables as close as possible, as local as possible, to where they will be used. Another example:
+
+# Chapter 4: Hoisting
+## TL;DR
+We can be tempted to look at var a = 2; as one statement, but the JavaScript Engine does not see it that way. It sees var a and a = 2 as two separate statements, the first one a compiler-phase task, and the second one an execution-phase task.
+
+What this leads to is that all declarations in a scope, regardless of where they appear, are processed first before the code itself is executed. You can visualize this as declarations (variables and functions) being "moved" to the top of their respective scopes, which we call "hoisting".
+
+Declarations themselves are hoisted, but assignments, even assignments of function expressions, are not hoisted.
+
+Be careful about duplicate declarations, especially mixed between normal var declarations and function declarations -- peril awaits if you do!
+
+# Chapter 5: Scope Closure
+## TL;DR
+Closure seems to the un-enlightened like a mystical world set apart inside of JavaScript which only the few bravest souls can reach. But it's actually just a standard and almost obvious fact of how we write code in a lexically scoped environment, where functions are values and can be passed around at will.
+
+Closure is when a function can remember and access its lexical scope even when it's invoked outside its lexical scope.
+
+Closures can trip us up, for instance with loops, if we're not careful to recognize them and how they work. But they are also an immensely powerful tool, enabling patterns like modules in their various forms.
+
+Modules require two key characteristics: 1) an outer wrapping function being invoked, to create the enclosing scope 2) the return value of the wrapping function must include reference to at least one inner function that then has closure over the private inner scope of the wrapper.
+
+## Closure
+Closure is when a function is able to remember and access its lexical scope even when that function is executing outside its lexical scope.
+```javascript
+function foo() {
+	var a = 2;
+
+	function bar() {
+		console.log( a ); // 2
+	}
+
+	bar();
+}
+
+foo();
+```
+
+Now we can see closures all around our existing code, and we have the ability to recognize and leverage them to our own benefit!
